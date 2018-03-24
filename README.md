@@ -1,5 +1,5 @@
-# ArDNSPod
-基于DNSPod用户API实现的纯Shell动态域名客户端，可以当做 keepalived 来使用。
+# KeluDdnsKit
+基于 DNSPod用户API 的Shell DDNS 脚本，可以当做 keepalived 来使用。
 
 # Usage
 
