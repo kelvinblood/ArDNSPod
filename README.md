@@ -1,28 +1,27 @@
 # ArDNSPod
-
-基于DNSPod用户API实现的纯Shell动态域名客户端，适配网卡地址。
+基于DNSPod用户API实现的纯Shell动态域名客户端，可以当做 keepalived 来使用。
 
 # Usage
 
-复制`dns.conf.example`到同一目录下的`dns.conf`并根据你的配置修改即可。
+1. 复制`dns.conf.example`到同一目录下的`dns.conf`，填充 api 的访问密钥。
+1. 复制`domain.list.example`到同一目录下的`domain.list`，填写需要 ddns 的域名。
 
-执行时直接运行`ddnspod.sh`，支持cron任务。
+执行时直接运行`ddnspod.sh`，默认无限 check domain.list 中的域名，并自动选择可用节点。
 
 配置文件格式：
 ```
-# 安全起见，不推荐使用密码认证
-# arMail="test@gmail.com"
-# arPass="123"
-
-# 推荐使用Token认证
 # 按`TokenID,Token`格式填写
 arToken="12345,7676f344eaeaea9074c123451234512d"
 
 # 每行一个域名
-arDdnsCheck "test.org" "subdomain"
+test.org www
 ```
 
 # 最近更新
+
+2018年03月24日 (by 血衫非弧)
+- 自动选择可用节点，替换失效节点。
+- 增加节点存活验证，不断 check 域名的可用性。
 
 2015/2/24
 - 增加token鉴权方式 (by wbchn)

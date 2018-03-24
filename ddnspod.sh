@@ -94,18 +94,50 @@ rreadlink() ( # Execute the function in a *subshell* to localize variables and t
 )
 
 DIR=$(dirname -- "$(rreadlink "$0")")
+OKIP=""
 
-# Global Variables:
+# config
+. $DIR/dns.conf
 
-# Token-based Authentication
-arToken=""
-# Account-based Authentication
-arMail=""
-arPass=""
+pingDomain(){
+    cat domain.list | while read line
+      do
+         main=`echo $line | cut -d " " -f 1`
+         sub=`echo $line | cut -d " " -f 2`
+         if [ $sub != $main ]; then
+            ip="$sub.$main"
+            else
+            ip="$main"
+            sub=""
+         fi
 
-# Load config
+         echo "$ip checking..."
+         ping -c 1 $ip &>/dev/null           #三个ping有一个能通，说明服务器正常
+         a=$?
+         sleep 2
+         ping -c 1 $ip &>/dev/null
+         b=$?
+         sleep 2
+         ping -c 1 $ip &>/dev/null
+         c=$?
+         sleep 2
 
-#. $DIR/dns.conf
+
+         if [ $a -ne 0 -a $b -ne 0 -a $c -ne 0 ];then
+             if [ -n $OKIP ]; then
+                arDdnsCheck $main $sub
+             fi
+         else
+             if [ ! -n "$OKIP" ]; then
+                OKIP=$(arDdnsInfo $main $sub)
+                echo "set okip => $OKIP"
+                else
+                echo "$ip => OK."
+             fi
+         fi
+    done
+}
+
 
 # Get Domain IP
 # arg: domain
@@ -130,7 +162,7 @@ arDdnsInfo() {
         return 0
         ;;
       *)
-        echo "Get Record Info Failed!"
+        echo "Get Record Info Failed! $recordIP"
         return 1
         ;;
     esac
@@ -162,7 +194,7 @@ arDdnsUpdate() {
     recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
     
     # Update IP
-    myIP=$(arIpAddress)
+    myIP=$OKIP
     recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
     recordIP=$(echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
@@ -187,13 +219,14 @@ arDdnsUpdate() {
 arDdnsCheck() {
     local postRS
     local lastIP
-    local hostIP=$(arIpAddress)
+    local okIP=$OKIP
+
     echo "Updating Domain: ${2}.${1}"
-    echo "hostIP: ${hostIP}"
+    echo "okIP: ${okIP}"
     lastIP=$(arDdnsInfo $1 $2)
     if [ $? -eq 0 ]; then
         echo "lastIP: ${lastIP}"
-        if [ "$lastIP" != "$hostIP" ]; then
+        if [ "$lastIP" != "$okIP" ]; then
             postRS=$(arDdnsUpdate $1 $2)
             if [ $? -eq 0 ]; then
                 echo "postRS: ${postRS}"
@@ -204,6 +237,7 @@ arDdnsCheck() {
             fi
         fi
         echo "Last IP is the same as current IP!"
+        OKIP=""
         return 1
     fi
     echo ${lastIP}
@@ -217,4 +251,12 @@ arDdnsCheck() {
 #    arDdnsCheck "${domains[index]}" "${subdomains[index]}"
 #done
 
-. $DIR/dns.conf
+while true
+do
+    pingDomain
+done
+
+#
+#ip="www.zhmoe.com"
+#
+#echo $ip | cut -d'.' -f2
