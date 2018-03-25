@@ -1,5 +1,5 @@
 # KeluDdnsKit
-基于 DNSPod用户API 的Shell DDNS 脚本，可以当做 keepalived 来使用。
+基于 DNSPod用户API 的Shell DDNS 脚本，效果类似于 keepalived，防单点故障。
 
 # Usage
 
@@ -21,9 +21,10 @@ test.org www
 ![img](http://cdn.kelu.org/blog/2018/03/keluddnskit.jpg)
 
 
-# todo
+# todo list
 
 * 容器化，编写 dockerfile。
+* 增加默认配置恢复功能。
 
 # 最近更新
 
