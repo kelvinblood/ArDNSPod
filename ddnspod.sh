@@ -100,7 +100,7 @@ OKIP=""
 . $DIR/dns.conf
 
 pingDomain(){
-    cat domain.list | while read line
+    cat $DIR/domain.list | while read line
       do
          main=`echo $line | cut -d " " -f 1`
          sub=`echo $line | cut -d " " -f 2`
