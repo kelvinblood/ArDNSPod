@@ -16,6 +16,10 @@ arToken="12345,7676f344eaeaea9074c123451234512d"
 # 每行一个域名
 test.org www
 ```
+# 效果
+
+![img](http://cdn.kelu.org/blog/2018/03/keluddnskit.jpg)
+
 
 # todo
 
