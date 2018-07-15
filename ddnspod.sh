@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+. /etc/profile
 
 #################################################
 # AnripDdns v5.08
@@ -100,7 +102,7 @@ OKIP=""
 . $DIR/dns.conf
 
 pingDomain(){
-    cat domain.list | while read line
+    cat $DIR/domain.list | while read line
       do
          main=`echo $line | cut -d " " -f 1`
          sub=`echo $line | cut -d " " -f 2`
@@ -121,9 +123,23 @@ pingDomain(){
          ping -c 1 $ip &>/dev/null
          c=$?
          sleep 2
+         ping -c 1 $ip &>/dev/null
+         d=$?
+         sleep 2
+         ping -c 1 $ip &>/dev/null
+         e=$?
+         sleep 2
+         ping -c 1 $ip &>/dev/null
+         f=$?
+         sleep 2
+         ping -c 1 $ip &>/dev/null
+         g=$?
+         sleep 2
+         ping -c 1 $ip &>/dev/null
+         h=$?
 
 
-         if [ $a -ne 0 -a $b -ne 0 -a $c -ne 0 ];then
+         if [ $a -ne 0 -a $b -ne 0 -a $c -ne 0 -a $d -ne 0 -a $e -ne 0 -a $f -ne 0 -a $g -ne 0 -a $h -ne 0 ];then
              if [ -n $OKIP ]; then
                 arDdnsCheck $main $sub
              fi
@@ -220,10 +236,13 @@ arDdnsCheck() {
     local postRS
     local lastIP
     local okIP=$OKIP
+    local domain="${2}.${1}"
 
-    echo "Updating Domain: ${2}.${1}"
+    echo "Updating Domain: $domain"
     echo "okIP: ${okIP}"
     lastIP=$(arDdnsInfo $1 $2)
+    /usr/bin/kelumail "更新$domain" " 更新域名: $domain from $lastIP to $okIP" > /dev/null 2>&1
+
     if [ $? -eq 0 ]; then
         echo "lastIP: ${lastIP}"
         if [ "$lastIP" != "$okIP" ]; then
@@ -240,23 +259,13 @@ arDdnsCheck() {
         OKIP=""
         return 1
     fi
+
     echo ${lastIP}
     return 1
 }
 
-# DDNS
-#echo ${#domains[@]}
-#for index in ${!domains[@]}; do
-#    echo "${domains[index]} ${subdomains[index]}"
-#    arDdnsCheck "${domains[index]}" "${subdomains[index]}"
-#done
+pingDomain
 
-while true
-do
-    pingDomain
-done
-
-#
 #ip="www.zhmoe.com"
 #
 #echo $ip | cut -d'.' -f2
